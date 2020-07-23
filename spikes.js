@@ -69,7 +69,6 @@ function draw() {
     } else if (rightProtrusion <= 0) {
       rightProtrusion = 0;
       spikesMoving = false;
-      // print("rolling right");
       rightSpikes = randomSeq(5 + Math.floor(score / 3));
     }
   }
