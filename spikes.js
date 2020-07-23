@@ -1,6 +1,7 @@
 let fr = 60;
 
 let birdDiameter = 50;
+let birdRadius = 25;
 
 let score;
 
@@ -30,6 +31,10 @@ let spikesMoving;
 
 let x;
 let distances;
+let nndata;
+let movingRight;
+
+const round_ = (num) => Math.round(num * 100) / 100;
 
 function setup() {
   createCanvas(400, 550);
@@ -56,15 +61,15 @@ function draw() {
   ellipse(birdX, birdY, birdDiameter, birdDiameter);
 
   if (spikesMoving) {
-    rightProtrusion += 0.04 * (xVel > 0 ? 1 : -1);
+    rightProtrusion += 0.02 * (xVel > 0 ? 1 : -1);
     if (rightProtrusion >= 1) {
       rightProtrusion = 1;
-      movingSpikes = false;
+      spikesMoving = false;
       leftSpikes = randomSeq(5 + Math.floor(score / 3));
-    }
-    if (rightProtrusion <= 0) {
+    } else if (rightProtrusion <= 0) {
       rightProtrusion = 0;
-      movingSpikes = false;
+      spikesMoving = false;
+      // print("rolling right");
       rightSpikes = randomSeq(5 + Math.floor(score / 3));
     }
   }
@@ -72,21 +77,15 @@ function draw() {
   birdX += xVel;
   birdY += yVel;
 
-  if (yVel <= 4) yVel += g;
+  if (yVel <= 4.5) yVel += g;
 
-  if (
-    birdX >= width - borderWidth - birdDiameter / 2 ||
-    birdX <= borderWidth + birdDiameter / 2
-  ) {
+  if (birdX >= width - borderWidth - birdRadius || birdX <= borderWidth + birdRadius) {
     score++;
     xVel *= -1;
     spikesMoving = true;
   }
 
-  if (
-    birdY > height - borderHeight - birdDiameter / 2 ||
-    birdY < borderHeight + birdDiameter / 2
-  )
+  if (birdY > height - borderHeight - birdRadius || birdY < borderHeight + birdRadius)
     reset();
 
   rightCollisions = renderSpikes(rightSpikes, false, rightProtrusion);
@@ -94,6 +93,29 @@ function draw() {
   if (rightCollisions || leftCollisions) {
     reset();
   }
+
+  rightSpikesNN = Array(13);
+  for (let i = 0; i < rightSpikesNN.length; i++)
+    rightSpikesNN[i] = rightSpikes.includes(i) ? 1 : 0;
+
+  leftSpikesNN = Array(13);
+  for (let i = 0; i < leftSpikesNN.length; i++)
+    leftSpikesNN[i] = leftSpikes.includes(i) ? 1 : 0;
+
+  movingRight = xVel > 0,
+
+  nndata = [
+    ...(movingRight ? rightSpikesNN : leftSpikesNN),
+    round_(
+      (birdX - borderWidth - birdRadius) / (width - 2 * borderWidth - birdDiameter)
+    ),
+    round_(
+      (birdY - borderHeight - birdRadius) / (height - 2 * borderHeight - birdDiameter)
+    ),
+    round_((yVel + 4.5) / 9),
+    movingRight ? 1 : 0,
+  ];
+  print(nndata);
 }
 
 function reset() {
