@@ -61,7 +61,7 @@ function draw() {
   ellipse(birdX, birdY, birdDiameter, birdDiameter);
 
   if (spikesMoving) {
-    rightProtrusion += 0.02 * (xVel > 0 ? 1 : -1);
+    rightProtrusion += 0.05 * (xVel > 0 ? 1 : -1);
     if (rightProtrusion >= 1) {
       rightProtrusion = 1;
       spikesMoving = false;
